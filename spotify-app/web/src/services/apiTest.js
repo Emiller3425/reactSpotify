@@ -23,3 +23,19 @@ export const testAPI = async () => {
     throw error;
   }
 };
+
+export const spotifyAuth = async () => {
+    try {
+        const response = await fetch(`${API_URL}/callback`)
+
+        if (!response.ok) {
+            throw new Error(`HTPP Error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error){
+        console.log("Could not fetch data", error);
+        throw error;
+    }
+};

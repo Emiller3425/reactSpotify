@@ -11,6 +11,7 @@ import Footer from './components/footer.jsx';
 
 
 function App() {
+  const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
 
   useEffect(() => {
     // Define a function to call testAPI
@@ -22,15 +23,28 @@ function App() {
     };
 
     getData();
+
+     // Check for spotify access token in the URL
+    const queryparams = new URLSearchParams(window.location.search);
+    const token = queryparams.get('access_token');
+
+    if (token) {
+      console.log("Spotify Access Token Recieved: ", token);
+      setSpotifyAccessToken(token);
+      // clean token from url
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
   }, []);
 
-
   return (
-    <div class="wrapper bg-gray-500">
-      <Header/>
-      <div class="flex-1 ">
-
+    <div className="wrapper bg-gray-500">
+      <Header loggedIn={spotifyAccesToken}/>
+      <div className="flex-1 ">
         {/* Landing Page Content Here */}
+        {spotifyAccesToken && (
+          <p className="text-white p-4 text-center"> Spotify Token Received: {spotifyAccesToken}</p>
+        )}
       </div>
       <Footer/>
     </div>
