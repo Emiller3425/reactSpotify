@@ -5,6 +5,9 @@ import spotify from '../images/spotify.png'
 // components
 import LoginButton from './loginbutton.jsx';
 
+// default profile image
+import defaultUserImage from '../images/defaultUserProfileImage.jpg';
+
 function Header({loggedIn, userData}) {
     const authStatus = loggedIn;
     const userProfileData = userData;
@@ -29,7 +32,11 @@ function UserGreeting({status, user}) {
         <div className="flex flex-row items-end">
         <h1>Hello {user.display_name}!&nbsp;</h1>
         <FlagEmoji countryCode={user.country}/>
-        <img src={user.images[0]}></img>
+        {user?.images?.[0]?.url ? (
+            <img src={user.images[0].url} alt="User Profile"></img>
+        ) : (
+            <img src={defaultUserImage} alt="User Profile"></img>
+        )}
         </div>
         );
     } else {
