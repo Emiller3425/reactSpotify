@@ -4,6 +4,7 @@ import './index.css';
 
 // API services
 import { testAPI } from './services/apiTest.js';
+import { getUserProfile } from './services/getUserProfile.js';
 
 // components
 import Header from './components/header.jsx';
@@ -12,6 +13,7 @@ import Footer from './components/footer.jsx';
 
 function App() {
   const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     // Define a function to call testAPI
@@ -19,6 +21,18 @@ function App() {
       const data = await testAPI();
       if (data) {
         console.log("data from test api:", data);
+      }
+    };
+
+    const fetchUserProfile = async (token) => {
+      if (token) {
+        try {
+          const profileData = await getUserProfile(token);
+          setUserProfile(profileData);
+          console.log("User Profile:", profileData);
+        } catch (error) {
+          console.error("Fialed to fetch user profile:", error);
+        }
       }
     };
 
@@ -31,6 +45,7 @@ function App() {
     if (token) {
       console.log("Spotify Access Token Recieved: ", token);
       setSpotifyAccessToken(token);
+      fetchUserProfile(token);
       // clean token from url
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -39,7 +54,7 @@ function App() {
 
   return (
     <div className="wrapper bg-gray-500">
-      <Header loggedIn={spotifyAccesToken}/>
+      <Header loggedIn={spotifyAccesToken} userData={userProfile}/>
       <div className="flex-1 ">
         {/* Landing Page Content Here */}
         {spotifyAccesToken && (

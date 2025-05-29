@@ -8,15 +8,11 @@ const app = express();
 const PORT = 3001; // Port for your backend server
 
 // Enable CORS for all routes
-// This allows your React app at http://localhost:3000 to talk to this server
 app.use(cors());
 
-// A simple route to send data to your frontend
+// A simple route to test backend is working
 app.get('/api/data', (req, res) => {
-  // This log will appear in your backend's terminal, NOT the browser
-  console.log('Backend was hit!');
 
-  // This is the data you will send to your React app
   const data = {
     message: "Hello from the backend! 👋",
     timestamp: new Date().toLocaleTimeString()
@@ -25,6 +21,7 @@ app.get('/api/data', (req, res) => {
   res.json(data);
 });
 
+// Callback API for OAUTH
 app.get('/api/callback', async (req, res) => {
     const code = req.query.code || null;
 
@@ -62,6 +59,30 @@ app.get('/api/callback', async (req, res) => {
     }
 });
 
+// API Call to get user profile details
+app.get('/api/getUserProfile', async (req, res) => {
+    const accessToken = req.headers.authorization.split(' ')[1];
+
+    if (!accessToken) {
+        console.log("No access tokem provided");
+        return res.status(401).send("Unauthorized: No Access Token");
+    }
+
+    try {
+        const response = await axios({
+            method: 'get',
+            url: 'https://api.spotify.com/v1/me',
+            headers: {
+                'Authorization' : `Bearer ${accessToken}`
+            }
+        });
+        console.log("Spotify User Profile:", response.data);
+        res.json(response.data);
+    } catch {
+        console.log("Error during user profile retrieval", error);
+        res.status(500).send("Error during user profile retreival");
+    }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
