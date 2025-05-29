@@ -3,7 +3,6 @@ import './App.css';
 import './index.css';
 
 // API services
-import { testAPI } from './services/apiTest.js';
 import { getUserProfile } from './services/getUserProfile.js';
 
 // components
@@ -16,14 +15,7 @@ function App() {
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    // Define a function to call testAPI
-    const getData = async () => {
-      const data = await testAPI();
-      if (data) {
-        console.log("data from test api:", data);
-      }
-    };
-
+    // fetch user profile if the user is authenticated
     const fetchUserProfile = async (token) => {
       if (token) {
         try {
@@ -36,12 +28,11 @@ function App() {
       }
     };
 
-    getData();
-
      // Check for spotify access token in the URL
     const queryparams = new URLSearchParams(window.location.search);
     const token = queryparams.get('access_token');
 
+    // set token and user profile information in fronted
     if (token) {
       console.log("Spotify Access Token Recieved: ", token);
       setSpotifyAccessToken(token);
