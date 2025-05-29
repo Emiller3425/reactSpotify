@@ -29,6 +29,7 @@ function UserGreeting({status, user}) {
         <div className="flex flex-row items-end">
         <h1>Hello {user.display_name}!&nbsp;</h1>
         <FlagEmoji countryCode={user.country}/>
+        <img src={user.images[0]}></img>
         </div>
         );
     } else {
