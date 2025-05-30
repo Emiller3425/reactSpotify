@@ -4,15 +4,18 @@ import './index.css';
 
 // API services
 import { getUserProfile } from './services/getUserProfile.js';
+import { getUserSavedAlbums } from './services/getUserSavedAlbums.js';
 
 // components
 import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
+import Button from './components/button.jsx';
 
 
 function App() {
   const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [userSavedAlbums, setUserSavedAlbums] = useState(null);
 
   useEffect(() => {
     // fetch user profile if the user is authenticated
@@ -23,7 +26,19 @@ function App() {
           setUserProfile(profileData);
           console.log("User Profile:", profileData);
         } catch (error) {
-          console.error("Fialed to fetch user profile:", error);
+          console.error("Failed to fetch user profile:", error);
+        }
+      }
+    };
+
+    const fetchUserSavedAlbums = async (token) => {
+      if (token) {
+        try {
+          const userSavedAlbums = await getUserSavedAlbums(token);
+          setUserSavedAlbums(userSavedAlbums);
+          console.log("User Saved Albums:", userSavedAlbums);
+        } catch (error) {
+          console.error("Failed to fetch user saved albums:", error);
         }
       }
     };
@@ -37,6 +52,7 @@ function App() {
       console.log("Spotify Access Token Recieved: ", token);
       setSpotifyAccessToken(token);
       fetchUserProfile(token);
+      fetchUserSavedAlbums(token);
       // clean token from url
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -48,9 +64,11 @@ function App() {
       <Header loggedIn={spotifyAccesToken} userData={userProfile}/>
       <div className="flex-1 ">
         {/* Landing Page Content Here */}
-        {spotifyAccesToken && (
-          <p className="text-white p-4 text-center"> Spotify Token Received: {spotifyAccesToken}</p>
-        )}
+          {userProfile ? (
+              <></>
+          ) : (
+              <></>
+          )}
       </div>
       <Footer/>
     </div>

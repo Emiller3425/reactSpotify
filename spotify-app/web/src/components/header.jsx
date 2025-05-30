@@ -30,12 +30,12 @@ function UserGreeting({status, user}) {
     if (status && user) {
         return (
         <div className="flex flex-row items-end">
-        <h1>Hello {user.display_name}!&nbsp;</h1>
-        <FlagEmoji countryCode={user.country}/>
+        <h1>Hello {user.display_name}!&nbsp;&nbsp;&nbsp;</h1>
+        <FlagEmoji countryCode={user.country}/>&nbsp;&nbsp;&nbsp;
         {user?.images?.[0]?.url ? (
-            <img src={user.images[0].url} alt="User Profile"></img>
+            <img src={user.images[0].url} alt="User Profile" className="h-8 w-8 rounded-full"></img>
         ) : (
-            <img src={defaultUserImage} alt="User Profile"></img>
+            <img src={defaultUserImage} alt="User Profile" className="h-8 w-8 rounded-full"></img>
         )}
         </div>
         );
