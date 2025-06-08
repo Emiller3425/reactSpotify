@@ -14,6 +14,16 @@ import Footer from './components/footer.jsx';
 import Navbar from './components/navbar.jsx';
 import Button from './components/button.jsx';
 
+// Pages
+import AudioPlayer from './components/audioplayer.jsx';
+import Albums from './components/albums.jsx';
+import Artists from './components/artists.jsx';
+import Genres from './components/genres.jsx';
+import Search from './components/search.jsx';
+import Stats from './components/stats.jsx';
+
+
+
 
 function App() {
   const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
@@ -79,13 +89,12 @@ function App() {
         <div className="flex-grow flex justify-center w-full px-4"> {/* CHANGED: Removed py-3 md:py-4 */}
           <Routes>
             {/* Define routes for each page/component, passing adminAccess where needed */}
-            <Route path="/" />
-            <Route path="/announcements" />
-            <Route path="/syndication" />
-            <Route path="/calendar"/>
-            <Route path="/leadership" />
-            <Route path="/login" />
-            <Route path="/resources" />
+            <Route path="/" element = {<Albums loggedIn={spotifyAccesToken} albums = {userSavedAlbums}/>} />
+            <Route path="/artists" element = {<Artists/>} />
+            <Route path="/genres" element = {<Genres/>}  />
+            <Route path="/audio-player" element = {<AudioPlayer/>} />
+            <Route path="/search" element = {<Search/>} />
+            <Route path="/stats" element = {<Stats/>}  />
           </Routes>
         </div>
           {userProfile ? (
@@ -106,16 +115,16 @@ function Tabs() {
   const location = useLocation();
 
   // base CSS classes applied to all tabs
-  const baseTabClasses = 'flex-1 px-4 py-2 md:py-4 text-center bg-gray-800 text-white border-b-4 border-transparent transition-colors duration-200 ease-in-out whitespace-nowrap'; // Kept border-b-4
+  const baseTabClasses = 'flex-1 px-4 py-2 md:py-4 text-center bg-gray-800 text-white border-b-4 transition-colors duration-200 ease-in-out whitespace-nowrap'; // Kept border-b-4
 
   // Determine the border color class based on whether the tab is active
   const getActiveTabStyling = (path) => {
     if (location.pathname === path) {
       // Active tab
-      return 'bg-emerald-500 border-emerald-500 text-white';
+      return 'bg-gray-1000 border-emerald-500 text-white';
     } else {
       // Inactive tab
-      return 'hover:bg-gray-700 hover:border-gray-500';
+      return 'hover:bg-gray-700 hover:border-emerald-100';
     }
   };
 
