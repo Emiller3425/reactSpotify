@@ -111,3 +111,31 @@ app.get('/api/getUserSavedAlbums', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.get('/api/getUserFollowedArtists', async (req, res) => {
+    const accessToken = req.headers.authorization.split(' ')[1];
+
+    if (!accessToken) {
+        console.log("No access token provided");
+        return res.status(401).send("Unauthorized: No Access Token");
+    }
+
+    try {
+        const response = await axios({
+            method: 'get',
+            url: 'https://api.spotify.com/v1/me/following?type=artist',
+            headers: {
+                'Authorization' : `Bearer ${accessToken}`
+            }
+        });
+        console.log("User Follwing Artists:", response.data);
+        res.json(response.data);
+    } catch {
+        console.log("Error during user followed artist retrieval");
+        res.status(500).send("Error during user followed artist retrieval");
+    }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

@@ -6,6 +6,7 @@ import './index.css';
 // API services
 import { getUserProfile } from './services/getUserProfile.js';
 import { getUserSavedAlbums } from './services/getUserSavedAlbums.js';
+import { getUserFollowedArtists } from './services/getUserFollowedArtists.js';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 
 // components
@@ -29,6 +30,7 @@ function App() {
   const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userSavedAlbums, setUserSavedAlbums] = useState(null);
+  const [userFollowedArtists, setUserFollowedArtists] = useState(null);
 
   useEffect(() => {
     // fetch user profile if the user is authenticated
@@ -59,6 +61,18 @@ function App() {
       }
     };
 
+    const fetchUserFollowedArtists = async (token) => {
+      if(token) {
+        try {
+          const userFollowedArtists = await getUserFollowedArtists(token);
+          setUserFollowedArtists(userFollowedArtists);
+          console.log("User Followed Artists:", userFollowedArtists);
+        } catch(error) {
+          console.error("Failed to fetch user saved albums:", error);
+        }
+      }
+    };
+
      // Check for spotify access token in the URL
     const queryparams = new URLSearchParams(window.location.search);
     const token = queryparams.get('access_token');
@@ -69,6 +83,7 @@ function App() {
       setSpotifyAccessToken(token);
       fetchUserProfile(token);
       fetchUserSavedAlbums(token);
+      fetchUserFollowedArtists(token);
       // clean token from url
       window.history.replaceState({}, document.title, window.location.pathname);
     }
