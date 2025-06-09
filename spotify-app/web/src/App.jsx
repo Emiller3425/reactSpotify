@@ -12,8 +12,6 @@ import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react
 // components
 import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
-import Navbar from './components/navbar.jsx';
-import Button from './components/button.jsx';
 
 // Pages
 import AudioPlayer from './components/audioplayer.jsx';
@@ -52,9 +50,6 @@ function App() {
           const userSavedAlbums = await getUserSavedAlbums(token);
           setUserSavedAlbums(userSavedAlbums);
           console.log("User Saved Albums:", userSavedAlbums);
-          for (var i = 0; i < userSavedAlbums.items.length; i++) {
-            console.log(userSavedAlbums.items[i].album.name);
-          }
         } catch (error) {
           console.error("Failed to fetch user saved albums:", error);
         }
@@ -105,7 +100,7 @@ function App() {
           <Routes>
             {/* Define routes for each page/component, passing adminAccess where needed */}
             <Route path="/" element = {<Albums loggedIn={spotifyAccesToken} albums = {userSavedAlbums}/>} />
-            <Route path="/artists" element = {<Artists/>} />
+            <Route path="/artists" element = {<Artists loggedIn={spotifyAccesToken} artists={userFollowedArtists}/>} />
             <Route path="/genres" element = {<Genres/>}  />
             <Route path="/audio-player" element = {<AudioPlayer/>} />
             <Route path="/search" element = {<Search/>} />

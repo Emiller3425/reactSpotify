@@ -62,7 +62,6 @@ function AlbumDetails({album}) {
     }
 
     const details = album;
-    console.log(details.album.name)
     return (
         <div>
             <h2 className="text-2xl font-bold mb-2">{details.album.name}</h2>
