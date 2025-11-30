@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'; // <-- Import useEffect
+import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 
 import './App.css';
 import './index.css';
@@ -7,7 +8,7 @@ import './index.css';
 import { getUserProfile } from './services/getUserProfile.js';
 import { getUserSavedAlbums } from './services/getUserSavedAlbums.js';
 import { getUserFollowedArtists } from './services/getUserFollowedArtists.js';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
 
 // components
 import Header from './components/header.jsx';
@@ -21,14 +22,22 @@ import Genres from './components/genres.jsx';
 import Search from './components/search.jsx';
 import Stats from './components/stats.jsx';
 
+function App () {
+  return (
+    <Router>
+      <AppContent/>
+    </Router>
+  );
+}
 
-
-
-function App() {
-  const [spotifyAccesToken, setSpotifyAccessToken] = useState(null);
+function AppContent() {
+  const [spotifyAccessToken, setSpotifyAccessToken] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userSavedAlbums, setUserSavedAlbums] = useState(null);
   const [userFollowedArtists, setUserFollowedArtists] = useState(null);
+  const [cookies, setCookie, removeCookie] = useCookies(["authentication_token"]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // fetch user profile if the user is authenticated
@@ -37,7 +46,7 @@ function App() {
         try {
           const profileData = await getUserProfile(token);
           setUserProfile(profileData);
-          console.log("User Profile:", profileData);
+          // console.log("User Profile:", profileData);
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
         }
@@ -49,7 +58,7 @@ function App() {
         try {
           const userSavedAlbums = await getUserSavedAlbums(token);
           setUserSavedAlbums(userSavedAlbums);
-          console.log("User Saved Albums:", userSavedAlbums);
+          // console.log("User Saved Albums:", userSavedAlbums);
         } catch (error) {
           console.error("Failed to fetch user saved albums:", error);
         }
@@ -61,62 +70,95 @@ function App() {
         try {
           const userFollowedArtists = await getUserFollowedArtists(token);
           setUserFollowedArtists(userFollowedArtists);
-          console.log("User Followed Artists:", userFollowedArtists);
+          // console.log("User Followed Artists:", userFollowedArtists);
         } catch(error) {
           console.error("Failed to fetch user saved albums:", error);
         }
       }
     };
 
+    const setAuthenticationCookie = async (token) => {
+      const now = new Date();
+      const expiryDate = new Date(now.getTime());
+      expiryDate.setHours(expiryDate.getHours() + 1);
+      if (token) {
+        try {
+          setCookie("authentication_token", token, 
+            { path: "/", 
+              secure: true, 
+              sameSite: 'lax',
+              expires: expiryDate,
+            }
+            );
+          // console.log("Set authentication cookie successfully");
+        } catch(error) {
+          // console.log("Failed to store authentication cookie:", error);
+        }
+      }
+    }
+
      // Check for spotify access token in the URL
     const queryparams = new URLSearchParams(window.location.search);
-    const token = queryparams.get('access_token');
+    let token = queryparams.get('access_token');
+    let stateUrl = queryparams.get('state');
+
+    // If no token from URL, try the cookie
+    if (!token && cookies.authentication_token) {
+        token = cookies.authentication_token;
+    }
 
     // set token and user profile information in fronted
     if (token) {
-      console.log("Spotify Access Token Recieved: ", token);
+      // console.log("Spotify Access Token Recieved: ", token);
       setSpotifyAccessToken(token);
       fetchUserProfile(token);
       fetchUserSavedAlbums(token);
       fetchUserFollowedArtists(token);
+      setAuthenticationCookie(token);
+      if (!cookies?.authentication_token) {
+        token = null;
+        window.location.reload(true);
+      }
+
+      if (stateUrl) {
+        try {
+          const urlObject = new URL(stateUrl);
+          const targetPath = urlObject.pathname;
+          navigate(targetPath, {replace:true});
+        } catch (e) {
+          console.log(`Error parsing state URL from redirection: ${e}`)
+        }
+      } else {
       // clean token from url
-      window.history.replaceState({}, document.title, window.location.pathname);
+      window.history.replaceState({}, document.title, window.location.pathname);        
+      }
     }
 
   }, []);
 
   return (
-    <Router>
     <div className="wrapper bg-gray-500">
-      <Header loggedIn={spotifyAccesToken} userData={userProfile}/>
+      <Header loggedIn={spotifyAccessToken} userData={userProfile}/>
       <div className="flex-1 ">
         {/* Landing Page Content Here */}
         {/* Navigation Tabs Section */}
         <Tabs />
-
         {/* Main Content Area: Dynamically renders components based on the route */}
         {/* Removed vertical padding (py-3 md:py-4) to eliminate space below tabs */}
         <div className="flex-grow flex justify-center w-full px-4"> {/* CHANGED: Removed py-3 md:py-4 */}
           <Routes>
             {/* Define routes for each page/component, passing adminAccess where needed */}
-            <Route path="/" element = {<Albums loggedIn={spotifyAccesToken} albums = {userSavedAlbums}/>} />
-            <Route path="/artists" element = {<Artists loggedIn={spotifyAccesToken} artists={userFollowedArtists}/>} />
+            <Route path="/" element = {<Albums loggedIn={spotifyAccessToken} albums = {userSavedAlbums}/>} />
+            <Route path="/artists" element = {<Artists loggedIn={spotifyAccessToken} artists={userFollowedArtists}/>} />
             <Route path="/genres" element = {<Genres/>}  />
             <Route path="/audio-player" element = {<AudioPlayer/>} />
             <Route path="/search" element = {<Search/>} />
             <Route path="/stats" element = {<Stats/>}  />
           </Routes>
         </div>
-          {userProfile ? (
-           <></>
-          ) : (
-             <></>
-          )}
-          {/* fucking other shit */}
       </div>
       <Footer/>
     </div>
-    </Router>
   );
 }
 
@@ -151,5 +193,6 @@ function Tabs() {
     </div>
   );
 }
+
 
 export default App;

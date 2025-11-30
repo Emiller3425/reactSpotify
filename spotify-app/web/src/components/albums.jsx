@@ -1,4 +1,4 @@
-import react, {useState} from 'react';
+import React, {useState} from 'react';
 
 function Albums({loggedIn, albums}) {
     const userAlbums = albums;
@@ -17,24 +17,45 @@ function Albums({loggedIn, albums}) {
         setSelectedAlbum(null);
     }
 
+    const isUserLoggedIn = authStatus;
+
+    const isLoading = isUserLoggedIn && userAlbums === null;
+
+    const noAlbumsFound = userAlbums && (!userAlbums.items || userAlbums.items.length <= 0);
+
+    let content;
+
+    if (!isUserLoggedIn) {
+        content = <div><h1>Log in to view albums.</h1></div>;
+    } else if (isLoading) {
+        content = (
+            <div className="flex justify-center items-center h-48">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                <h1 className="ml-4 text-xl font-medium">Loading Albums...</h1>
+            </div>
+        )
+    } else if (noAlbumsFound) {
+        content = <div><h1>No albums found</h1></div>;
+    } else {
+        // Logged in, loaded, and albums exist.
+        content = (
+            <div className="display flex flex-wrap justify-center gap-4 p-4">
+                {userAlbums.items.map(album => (
+                    <img 
+                        key={album.album.id}
+                        src={album.album.images[0]?.url}
+                        alt={album.album.name}
+                        className="h-40 w-40 object-cover rounded transition duration-300 ease-in-out hover:scale-110 cursor-pointer" 
+                        onClick={() => openAlbumDetails(album)}
+                    />
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div>
-            {authStatus?.items ? (
-                <>{console.log("User Not Auth")}</>
-            ) : (
-                <div className="display flex flex-wrap justify-center gap-4 p-4">
-                <>{userAlbums?.items.map(album => 
-                    <img 
-                    key={album.album.id}
-                    src={album.album.images[0].url} 
-                    alt={album.album.name} 
-                    className="h-40 w18 rounded transition duration-300 ease-in-out hover:scale-110" 
-                    onClick={() => openAlbumDetails(album)}></img>
-                )}</>
-                </div>
-            )}
-
-            {/* If you want a "back" button or close button for AlbumDetails */}
+            {content}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -62,11 +83,19 @@ function AlbumDetails({album}) {
     }
 
     const details = album;
+    const albumDate = new Date(details.album.release_date);
+
+    const dateSpecifications = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }
+    const formattedDateUS = new Intl.DateTimeFormat('en-US', dateSpecifications).format(albumDate);
     return (
         <div>
             <h2 className="text-2xl font-bold mb-2">{details.album.name}</h2>
             <p className="text-gray-700 mb-1">Artist: {details.album.artists[0]?.name}</p>
-            <p className="text-gray-700 mb-1">Released: {details.album.release_date}</p>
+            <p className="text-gray-700 mb-1">Released: {formattedDateUS}</p>
         </div>
     )
 }

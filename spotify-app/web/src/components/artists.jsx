@@ -1,4 +1,4 @@
-import react, {useState} from 'react';
+import React, {useState} from 'react';
 
 function Artists({loggedIn, artists}) {
     const userArtists = artists;
@@ -60,8 +60,9 @@ function ArtistDetails({artist}) {
     if (!artist) {
         return null;
     }
-
     const details = artist;
+    console.log(details);
+
     return (
         <div>
             <h2 className="text-2xl font-bold mb-2">{details.name}</h2>

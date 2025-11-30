@@ -24,6 +24,8 @@ app.get('/api/data', (req, res) => {
 // Callback API for OAUTH
 app.get('/api/callback', async (req, res) => {
     const code = req.query.code || null;
+    const state = req.query.state || null;
+    console.log(`req_url: ${req.query.state}`);
 
     if (!code) {
         console.error("No authorization code received from Spotify.");
@@ -50,10 +52,14 @@ app.get('/api/callback', async (req, res) => {
         const accessToken = response.data.access_token;
         const refreshToken = response.data.refresh_token;
 
+        let redirectUri = `${process.env.FRONT_END_URL}/?access_token=${accessToken}`
+
+        if (state) {
+            redirectUri += `&state=${state}`;
+        }
+        console.log(`redirect uri: ${redirectUri}`);
         // IMPORTANT: Store these tokens securely!
-        res.redirect(`${process.env.FRONT_END_URL}/?access_token=${accessToken}`);
-        console.log("Access Granted!")
-        console.log(accessToken);
+        res.redirect(redirectUri);
     } catch {
         res.status(500).send("Error during Spotify authentication");
     }
@@ -76,7 +82,7 @@ app.get('/api/getUserProfile', async (req, res) => {
                 'Authorization' : `Bearer ${accessToken}`
             }
         });
-        console.log("Spotify User Profile:", response.data);
+        // console.log("Spotify User Profile:", response.data);
         res.json(response.data);
     } catch {
         console.log("Error during user profile retrieval", error);
@@ -100,7 +106,7 @@ app.get('/api/getUserSavedAlbums', async (req, res) => {
                 'Authorization' : `Bearer ${accessToken}`
             }
         });
-        console.log("User Saved Albums:", response.data);
+        // console.log("User Saved Albums:", response.data);
         res.json(response.data);
     } catch {
         console.log("Error during user saved albums retrieval");
@@ -128,7 +134,7 @@ app.get('/api/getUserFollowedArtists', async (req, res) => {
                 'Authorization' : `Bearer ${accessToken}`
             }
         });
-        console.log("User Follwing Artists:", response.data);
+        // console.log("User Follwing Artists:", response.data);
         res.json(response.data);
     } catch {
         console.log("Error during user followed artist retrieval");

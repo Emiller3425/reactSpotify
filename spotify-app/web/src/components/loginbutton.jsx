@@ -6,10 +6,12 @@ function LoginButton({displayText}) {
         const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
         const redirectUri = process.env.REACT_APP_SPOTIFY_CALLBACK_URL;
 
+        const currentUrl = window.location.href;
+        
         // scopes / permissions we are requesting from the user
         const scopes = 'user-follow-read user-read-private user-read-email user-library-read playlist-read-private';
 
-        const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+        const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(currentUrl)}`;
 
         window.location.href = authUrl;
     }
